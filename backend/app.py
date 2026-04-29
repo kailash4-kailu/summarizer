@@ -1,10 +1,10 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder="../templates")
 
 @app.route("/")
 def home():
-    return "AI Summarizer is running 🚀"
+    return render_template("index.html")
 
 @app.route("/summarize", methods=["POST"])
 def summarize():
