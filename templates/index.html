@@ -1,60 +1,178 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>AI Summarizer</title>
-  <style>
-    body {
-      font-family: Arial;
-      max-width: 800px;
-      margin: 40px auto;
-    }
-
-    textarea {
-      width: 100%;
-      height: 150px;
-      padding: 10px;
-    }
-
-    button {
-      padding: 10px 20px;
-      margin-top: 10px;
-      cursor: pointer;
-    }
-
-    #result {
-      background: #f4f4f4;
-      padding: 10px;
-      margin-top: 15px;
-      white-space: pre-wrap;
-    }
-  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head>
 <body>
+  <main class="shell">
+    <header class="app-header">
+      <div class="brand-lockup">
+        <span class="brand-mark" aria-hidden="true">AI</span>
+        <div>
+          <p class="eyebrow">Document Studio</p>
+          <h1>AI Summarizer</h1>
+        </div>
+      </div>
 
-  <h1>AI Summarizer</h1>
+      <div class="header-actions">
+        <a href="#study-tools" class="nav-link">Study</a>
+        <a href="#chat-title" class="nav-link">Chat</a>
+        <span class="status-pill" id="status-pill">Ready</span>
+      </div>
+    </header>
 
-  <textarea id="text" placeholder="Paste text here..."></textarea><br>
-  <button onclick="summarize()">Summarize</button>
+    <section class="workspace" aria-label="Summarizer workspace">
+      <form class="panel editor-panel" id="summary-form">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">Input</p>
+            <label for="source-text">Source text</label>
+          </div>
+          <span id="source-count">0 words</span>
+        </div>
 
-  <h3>Summary:</h3>
-  <div id="result"></div>
+        <div class="file-tools" id="file-drop-zone">
+          <label class="file-drop-zone" for="source-file">
+            <span class="file-badge">PDF</span>
+            <span>
+              <strong>Import document</strong>
+              <small>PDF, DOCX, TXT, MD, RTF</small>
+            </span>
+          </label>
+          <input class="sr-only" id="source-file" type="file" accept=".pdf,.docx,.txt,.md,.rtf">
+          <button class="button secondary" type="button" id="import-file-button" disabled>Import</button>
+          <span id="file-status">No file selected</span>
+        </div>
 
-<script>
-async function summarize() {
-  const text = document.getElementById("text").value;
+        <textarea
+          id="source-text"
+          name="text"
+          placeholder="Paste text here..."
+          spellcheck="true"
+          autocomplete="off"
+        ></textarea>
 
-  const res = await fetch("/summarize", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ text })
-  });
+        <div class="controls">
+          <label class="control-group" for="sentence-count">
+            <span>Max sentences</span>
+            <span class="range-value"><output id="sentence-output">3</output></span>
+            <input id="sentence-count" name="sentences" type="range" min="1" max="10" value="3">
+          </label>
 
-  const data = await res.json();
-  document.getElementById("result").innerText = data.summary;
-}
-</script>
+          <label class="control-group" for="focus-terms">
+            <span>Focus terms</span>
+            <input id="focus-terms" name="focus" type="text" placeholder="Optional keywords">
+          </label>
+        </div>
 
+        <div class="actions">
+          <button class="button ghost" type="button" id="clear-button">Clear</button>
+          <button class="button secondary" type="button" id="sample-button">Sample</button>
+          <button class="button primary" type="submit" id="summarize-button">Summarize</button>
+        </div>
+      </form>
+
+      <section class="panel result-panel" aria-labelledby="summary-title">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">Output</p>
+            <h2 id="summary-title">Summary</h2>
+          </div>
+          <span id="summary-count">0 words</span>
+        </div>
+
+        <div class="message" id="message" role="status" aria-live="polite"></div>
+        <article class="result empty" id="summary-result">Summary appears here.</article>
+
+        <div class="key-terms" id="key-terms" aria-label="Key terms"></div>
+
+        <div class="actions">
+          <button class="button secondary" type="button" id="copy-button" disabled>Copy</button>
+          <button class="button secondary" type="button" id="download-button" disabled>Download</button>
+        </div>
+      </section>
+    </section>
+
+    <section class="metrics" aria-label="Summary metrics">
+      <div class="metric">
+        <span>Source words</span>
+        <strong id="metric-source-words">0</strong>
+      </div>
+      <div class="metric">
+        <span>Summary words</span>
+        <strong id="metric-summary-words">0</strong>
+      </div>
+      <div class="metric">
+        <span>Compression</span>
+        <strong id="metric-compression">0%</strong>
+      </div>
+      <div class="metric">
+        <span>Read time</span>
+        <strong id="metric-reading-time">0 min</strong>
+      </div>
+    </section>
+
+    <section class="study-tools" id="study-tools" aria-label="Study tools">
+      <section class="panel flashcard-panel" aria-labelledby="flashcard-title">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">Practice</p>
+            <h2 id="flashcard-title">Flashcards</h2>
+          </div>
+          <span id="flashcard-count">0 cards</span>
+        </div>
+
+        <div class="flashcard-controls">
+          <label class="control-group compact" for="card-count">
+            <span>Cards</span>
+            <span class="range-value"><output id="card-count-output">6</output></span>
+            <input id="card-count" type="range" min="3" max="12" value="6">
+          </label>
+          <button class="button primary" type="button" id="generate-cards-button">Generate</button>
+        </div>
+
+        <article class="flashcard empty" id="flashcard" tabindex="0" aria-live="polite">
+          <span class="card-label" id="card-label">Question</span>
+          <p id="card-content">Generate flashcards from your source text.</p>
+          <small id="card-hint"></small>
+        </article>
+
+        <div class="flashcard-nav">
+          <button class="icon-button" type="button" id="prev-card" aria-label="Previous card" title="Previous card" disabled>&lt;</button>
+          <button class="button secondary" type="button" id="flip-card" disabled>Show answer</button>
+          <button class="icon-button" type="button" id="next-card" aria-label="Next card" title="Next card" disabled>&gt;</button>
+        </div>
+      </section>
+
+      <section class="panel chat-panel" aria-labelledby="chat-title">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">Ask</p>
+            <h2 id="chat-title">AI Chat</h2>
+          </div>
+          <span id="chat-state">Context aware</span>
+        </div>
+
+        <div class="quick-prompts" aria-label="Quick chat prompts">
+          <button type="button" data-prompt="What is this about?">About</button>
+          <button type="button" data-prompt="What are the main points?">Main points</button>
+          <button type="button" data-prompt="Explain the hardest idea simply.">Explain</button>
+          <button type="button" data-prompt="Quiz me from this text.">Quiz me</button>
+        </div>
+
+        <div class="chat-box" id="chat-box" role="log" aria-live="polite"></div>
+
+        <form class="chat-form" id="chat-form">
+          <label class="sr-only" for="chat-input">Message</label>
+          <input id="chat-input" type="text" placeholder="Ask about the text..." autocomplete="off">
+          <button class="button primary" type="submit" id="chat-send">Send</button>
+        </form>
+      </section>
+    </section>
+  </main>
 </body>
 </html>

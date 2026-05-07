@@ -1,8 +1,2 @@
 Flask
-gunicorn
-flask-cors
-transformers
-torch
-scikit-learn
 PyPDF2
-sentencepiece
