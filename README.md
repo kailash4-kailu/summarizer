@@ -2,13 +2,23 @@
 
 A Flask web app for summarizing pasted text or imported documents. It supports PDF, DOCX, TXT, MD, and RTF extraction, summary metrics, key terms, flashcards, and a document-grounded chatbot.
 
+# Purpose
+
+This project was created to help students and learners save time while reading lengthy content and preparing notes.
+
+# How It Works
+Enter text or upload a PDF
+Click summarize
+Get a concise summary within seconds
+Explore it by using flashcards
+Get better understanding by using chatbot
+
 ## Project Structure
 
 ```text
 summarizer/
   app.py                 # Vercel Flask entrypoint
   wsgi.py                # Local WSGI entrypoint
-  vercel.json            # Vercel function config
   requirements.txt
   backend/
     app.py               # Main Flask app and summarization logic
