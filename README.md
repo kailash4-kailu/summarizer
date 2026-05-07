@@ -34,26 +34,4 @@ python wsgi.py
 
 Open `http://127.0.0.1:5000`.
 
-## Deploy to Vercel
 
-This project is configured for Vercel with:
-
-- `app.py` as the Flask entrypoint
-- `vercel.json` for Python function settings
-- `public/static/` for frontend assets
-- `.python-version` pinned to Python 3.12
-
-Deploy from the Vercel dashboard by importing this Git repository, or use the CLI:
-
-```bash
-npm i -g vercel
-vercel
-vercel --prod
-```
-
-If you edit files in `static/`, mirror them into `public/static/` before deploying:
-
-```powershell
-Copy-Item -Force static\app.js public\static\app.js
-Copy-Item -Force static\styles.css public\static\styles.css
-```
