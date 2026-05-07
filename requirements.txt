@@ -1,2 +1,6 @@
 Flask
+gunicorn
 PyPDF2
+scikit-learn
+transformers
+torch
